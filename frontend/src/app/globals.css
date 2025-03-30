@@ -4,28 +4,28 @@
 
 /* Custom scrollbar styles */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  @apply bg-background;
+  @apply bg-[#0f172a];
 }
 
 ::-webkit-scrollbar-thumb {
-  @apply bg-[#FF4B7F] bg-opacity-70 rounded-full;
+  @apply bg-blue-600 bg-opacity-80 rounded-full;
   border: 2px solid transparent;
   background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  @apply bg-opacity-100;
+  @apply bg-blue-500 bg-opacity-100;
 }
 
 /* Firefox scrollbar styles */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #ff4b7f var(--background);
+  scrollbar-color: #2563eb #0f172a;
 }
 
 @layer base {
