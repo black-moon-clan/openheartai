@@ -1,7 +1,6 @@
 import { Handler } from "@netlify/functions";
 import axios from "axios";
 
-const DIFFBOT_BASE_URL = process.env.DIFFBOT_BASE_URL;
 const DIFFBOT_TOKEN = process.env.DIFFBOT_TOKEN;
 
 const systemPrompt = `You are a sexual education assistant designed to provide accurate, inclusive, and respectful information about sexual health, relationships, consent, anatomy, and sexual well-being. Your responses should be based on scientifically verified facts, and you should strive to maintain a tone that is respectful, non-judgmental, and supportive. You are here to help people of all genders, sexual orientations, and backgrounds. Avoid providing personal medical advice, but offer general guidance and encourage users to seek professional advice when necessary.
@@ -33,32 +32,29 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    if (!DIFFBOT_BASE_URL || !DIFFBOT_TOKEN) {
-      throw new Error("DiffBot configuration is missing");
+    if (!DIFFBOT_TOKEN) {
+      throw new Error("Diffbot token is missing");
     }
 
-    // Create chat completion with DiffBot
+    // Process text with Diffbot Natural Language API
     const response = await axios.post(
-      `${DIFFBOT_BASE_URL}/chat`,
+      "https://nl.diffbot.com/v1/process",
       {
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt,
-          },
-          {
-            role: "user",
-            content: message,
-          },
-        ],
+        text: `${systemPrompt}\n\nUser: ${message}\n\nAssistant:`,
       },
       {
+        params: {
+          token: DIFFBOT_TOKEN,
+        },
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Token ${DIFFBOT_TOKEN}`,
+          Accept: "application/json",
         },
       }
     );
+
+    // Extract the response text from Diffbot's output
+    const responseText = response.data?.text || "No response generated";
 
     return {
       statusCode: 200,
@@ -66,7 +62,7 @@ export const handler: Handler = async (event) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        response: response.data.output || "No response generated",
+        response: responseText,
       }),
     };
   } catch (error) {
