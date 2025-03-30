@@ -1,0 +1,12 @@
+[build]
+  base = "frontend"
+  command = "npm install && npm run build"
+  publish = ".next/standalone"
+
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+[build.environment]
+  NEXT_PUBLIC_SITE_URL = "https://open-heart-ai.netlify.app"
+  NODE_VERSION = "18"
+  NEXT_TELEMETRY_DISABLED = "1" 
