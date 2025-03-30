@@ -1,7 +1,9 @@
 import { Handler } from "@netlify/functions";
-import axios from "axios";
+import Groq from "groq-sdk";
 
-const DIFFBOT_TOKEN = process.env.DIFFBOT_TOKEN;
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
 const systemPrompt = `You are a sexual education assistant designed to provide accurate, inclusive, and respectful information about sexual health, relationships, consent, anatomy, and sexual well-being. Your responses should be based on scientifically verified facts, and you should strive to maintain a tone that is respectful, non-judgmental, and supportive. You are here to help people of all genders, sexual orientations, and backgrounds. Avoid providing personal medical advice, but offer general guidance and encourage users to seek professional advice when necessary.
 
@@ -32,29 +34,24 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    if (!DIFFBOT_TOKEN) {
-      throw new Error("Diffbot token is missing");
-    }
-
-    // Process text with Diffbot Natural Language API
-    const response = await axios.post(
-      "https://nl.diffbot.com/v1/process",
-      {
-        text: `${systemPrompt}\n\nUser: ${message}\n\nAssistant:`,
-      },
-      {
-        params: {
-          token: DIFFBOT_TOKEN,
+    // Create chat completion with Groq
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
         },
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
+        {
+          role: "user",
+          content: message,
         },
-      }
-    );
-
-    // Extract the response text from Diffbot's output
-    const responseText = response.data?.text || "No response generated";
+      ],
+      model: "mixtral-8x7b-32768",
+      temperature: 0.5,
+      max_tokens: 1024,
+      top_p: 1,
+      stream: false,
+    });
 
     return {
       statusCode: 200,
@@ -62,7 +59,9 @@ export const handler: Handler = async (event) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        response: responseText,
+        response:
+          chatCompletion.choices[0]?.message?.content ||
+          "No response generated",
       }),
     };
   } catch (error) {
