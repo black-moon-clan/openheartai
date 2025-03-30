@@ -9,6 +9,18 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Open Heart AI - Sexual Health Education",
   description: "Accurate & Compassionate Sexual Health Education",
+  icons: {
+    icon: [
+      { url: '/heart-icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+    ],
+    apple: [
+      { url: '/apple-touch-icon.png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
+  themeColor: '#FF4B7F',
+  viewport: 'width=device-width, initial-scale=1.0',
 };
 
 export default function RootLayout({

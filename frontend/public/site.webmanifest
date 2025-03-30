@@ -1,0 +1,17 @@
+{
+  "name": "Open Heart AI",
+  "short_name": "OpenHeart",
+  "description": "Accurate & Compassionate Sexual Health Education",
+  "icons": [
+    {
+      "src": "/heart-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ],
+  "theme_color": "#FF4B7F",
+  "background_color": "#0f172a",
+  "display": "standalone",
+  "start_url": "/"
+}
