@@ -34,7 +34,6 @@ export default function ChatInterface() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [privateMode, setPrivateMode] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -140,16 +139,6 @@ export default function ChatInterface() {
     });
   };
 
-  const togglePrivateMode = () => {
-    setPrivateMode(!privateMode);
-    toast({
-      title: privateMode ? "Privacy mode disabled" : "Privacy mode enabled",
-      description: privateMode
-        ? "Your conversation is no longer hidden from nearby viewers"
-        : "Your conversation is now hidden from nearby viewers",
-    });
-  };
-
   return (
     <TooltipProvider>
       <Card className="flex flex-col h-[600px] max-h-[80vh] bg-background border rounded-lg shadow-sm mx-auto max-w-4xl">
@@ -169,24 +158,6 @@ export default function ChatInterface() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex items-center gap-1">
-                  <Switch
-                    id="private-mode"
-                    checked={privateMode}
-                    onCheckedChange={togglePrivateMode}
-                    aria-label="Toggle privacy mode"
-                    className="scale-75"
-                  />
-                  <Label htmlFor="private-mode" className="text-xs cursor-pointer">Privacy</Label>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Hide sensitive content from nearby viewers</p>
-              </TooltipContent>
-            </Tooltip>
-
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Clear chat history">
@@ -237,7 +208,7 @@ export default function ChatInterface() {
                     </Avatar>
                   )}
                   <div
-                    className={`message-bubble ${message.sender === "user" ? "user-message" : "bot-message"} ${privateMode && message.sender === "user" ? "blur-sm hover:blur-none focus:blur-none" : ""}`}
+                    className={`message-bubble ${message.sender === "user" ? "user-message" : "bot-message"}`}
                     tabIndex={0}
                     aria-label={`${message.sender === "user" ? "Your message" : "Bot message"}: ${message.content}`}
                   >
