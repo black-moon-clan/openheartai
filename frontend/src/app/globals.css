@@ -88,8 +88,17 @@
   @apply bg-muted;
 }
 
+.bot-message p {
+  @apply mb-4 leading-relaxed;
+}
+
 .bot-message p:last-child {
   @apply mb-0;
+}
+
+.bot-message ul,
+.bot-message ol {
+  @apply mb-4 ml-6 space-y-2;
 }
 
 .bot-message ul:last-child,
@@ -97,8 +106,38 @@
   @apply mb-0;
 }
 
+.bot-message li {
+  @apply mb-2 leading-relaxed;
+}
+
 .bot-message li:last-child {
   @apply mb-0;
+}
+
+.bot-message strong {
+  @apply font-bold text-foreground;
+}
+
+.bot-message em {
+  @apply italic;
+}
+
+.bot-message h1,
+.bot-message h2,
+.bot-message h3 {
+  @apply font-bold text-foreground mb-4;
+}
+
+.bot-message h1 {
+  @apply text-2xl;
+}
+
+.bot-message h2 {
+  @apply text-xl;
+}
+
+.bot-message h3 {
+  @apply text-lg;
 }
 
 .feature-icon {
