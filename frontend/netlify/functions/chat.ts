@@ -1,12 +1,8 @@
 import { Handler } from "@netlify/functions";
-import Groq from "groq-sdk";
+import axios from "axios";
 
-const groq = new Groq({
-  // apiKey: process.env.GROQ_API_KEY,
-  // baseURL: "https://api.groq.com/openai/v1",
-  apiKey: process.env.DIFFBOT_API_KEY,
-  baseURL: process.env.DIFFBOT_BASE_URL,
-});
+const DIFFBOT_BASE_URL = process.env.DIFFBOT_BASE_URL;
+const DIFFBOT_TOKEN = process.env.DIFFBOT_TOKEN;
 
 const systemPrompt = `You are a sexual education assistant designed to provide accurate, inclusive, and respectful information about sexual health, relationships, consent, anatomy, and sexual well-being. Your responses should be based on scientifically verified facts, and you should strive to maintain a tone that is respectful, non-judgmental, and supportive. You are here to help people of all genders, sexual orientations, and backgrounds. Avoid providing personal medical advice, but offer general guidance and encourage users to seek professional advice when necessary.
 
@@ -37,24 +33,32 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    // Create chat completion with Groq
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
+    if (!DIFFBOT_BASE_URL || !DIFFBOT_TOKEN) {
+      throw new Error("DiffBot configuration is missing");
+    }
+
+    // Create chat completion with DiffBot
+    const response = await axios.post(
+      `${DIFFBOT_BASE_URL}/chat`,
+      {
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Token ${DIFFBOT_TOKEN}`,
         },
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-      model: "gemma2-9b-it",
-      temperature: 0,
-      max_completion_tokens: 1450,
-      top_p: 1,
-      stream: false,
-    });
+      }
+    );
 
     return {
       statusCode: 200,
@@ -62,16 +66,17 @@ export const handler: Handler = async (event) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        response:
-          chatCompletion.choices[0]?.message?.content ||
-          "No response generated",
+        response: response.data.output || "No response generated",
       }),
     };
   } catch (error) {
     console.error("Error:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal Server Error" }),
+      body: JSON.stringify({
+        error: "Internal Server Error",
+        details: error instanceof Error ? error.message : "Unknown error",
+      }),
     };
   }
 };
