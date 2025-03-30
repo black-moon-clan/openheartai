@@ -13,6 +13,8 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 type Message = {
   id: string;
@@ -241,7 +243,26 @@ export default function ChatInterface() {
                     tabIndex={0}
                     aria-label={`${message.sender === "user" ? "Your message" : "Bot message"}: ${message.content}`}
                   >
-                    <p>{message.content}</p>
+                    {message.sender === "bot" ? (
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          p: (props) => <p className="mb-4" {...props} />,
+                          ul: (props) => <ul className="mb-4 ml-4 list-disc" {...props} />,
+                          ol: (props) => <ol className="mb-4 ml-4 list-decimal" {...props} />,
+                          li: (props) => <li className="mb-2" {...props} />,
+                          h1: (props) => <h1 className="text-xl font-bold mb-4" {...props} />,
+                          h2: (props) => <h2 className="text-lg font-bold mb-3" {...props} />,
+                          h3: (props) => <h3 className="text-md font-bold mb-2" {...props} />,
+                          strong: (props) => <strong className="font-bold" {...props} />,
+                          em: (props) => <em className="italic" {...props} />,
+                        }}
+                      >
+                        {message.content}
+                      </ReactMarkdown>
+                    ) : (
+                      <p>{message.content}</p>
+                    )}
                     <div className="text-xs opacity-70 mt-1 flex items-center gap-1">
                       {message.timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       {message.sender === "user" && message.status && (

@@ -77,16 +77,28 @@
 
 /* Custom styles for the chat application */
 .message-bubble {
-  max-width: 80%;
-  word-wrap: break-word;
-}
-
-.bot-message {
-  @apply bg-blue-500 text-white rounded-2xl rounded-bl-none px-3 py-2 text-sm;
+  @apply rounded-lg p-4 max-w-full break-words;
 }
 
 .user-message {
-  @apply bg-white text-gray-800 rounded-2xl rounded-br-none px-3 py-2 text-sm;
+  @apply bg-primary text-primary-foreground;
+}
+
+.bot-message {
+  @apply bg-muted;
+}
+
+.bot-message p:last-child {
+  @apply mb-0;
+}
+
+.bot-message ul:last-child,
+.bot-message ol:last-child {
+  @apply mb-0;
+}
+
+.bot-message li:last-child {
+  @apply mb-0;
 }
 
 .feature-icon {
