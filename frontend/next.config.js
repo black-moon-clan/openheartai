@@ -20,9 +20,13 @@ const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  output: "standalone",
-  distDir: ".next",
   // Enable static exports
+  output: "export",
+  // Disable image optimization since we're using unoptimized images
+  images: {
+    unoptimized: true,
+  },
+  // Ensure trailing slashes for better compatibility
   trailingSlash: true,
 };
 
