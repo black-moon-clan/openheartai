@@ -4,6 +4,12 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "Chat - Open Heart AI",
   description: "Private & Confidential Sexual Health Education Chat",
+  icons: {
+    icon: [
+      { url: '/heart-icon.svg', type: 'image/svg+xml' },
+      { url: '/favicon.ico' },
+    ],
+  },
 };
 
 export default function ChatPage() {
