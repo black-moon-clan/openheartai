@@ -57,7 +57,7 @@ export default function ChatInterface() {
     }
   }, []);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (inputValue.trim() === "") return;
 
     const newUserMessage: Message = {
@@ -72,25 +72,50 @@ export default function ChatInterface() {
     setInputValue("");
     setIsLoading(true);
 
-    // Simulate bot response after a short delay
-    setTimeout(() => {
+    try {
+      const response = await fetch('/.netlify/functions/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message: inputValue }),
+      });
+
+      const data = await response.json();
+
       // Update user message status to sent
-      setMessages((prev) => 
-        prev.map(msg => 
+      setMessages((prev) =>
+        prev.map(msg =>
           msg.id === newUserMessage.id ? { ...msg, status: "sent" } : msg
         )
       );
-      
+
       const botResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: "Thank you for your question. I am providing accurate, evidence-based information on sexual health topics. Your privacy is protected, and this conversation is confidential. How else can I help you today?",
+        content: data.response,
         sender: "bot",
         timestamp: new Date(),
         status: "sent",
       };
+
       setMessages((prev) => [...prev, botResponse]);
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to get response from the chatbot",
+        variant: "destructive",
+      });
+
+      // Update user message status to error
+      setMessages((prev) =>
+        prev.map(msg =>
+          msg.id === newUserMessage.id ? { ...msg, status: "error" } : msg
+        )
+      );
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -120,8 +145,8 @@ export default function ChatInterface() {
     setPrivateMode(!privateMode);
     toast({
       title: privateMode ? "Privacy mode disabled" : "Privacy mode enabled",
-      description: privateMode 
-        ? "Your conversation is no longer hidden from nearby viewers" 
+      description: privateMode
+        ? "Your conversation is no longer hidden from nearby viewers"
         : "Your conversation is now hidden from nearby viewers",
     });
   };
@@ -148,9 +173,9 @@ export default function ChatInterface() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <div className="flex items-center gap-1">
-                  <Switch 
-                    id="private-mode" 
-                    checked={privateMode} 
+                  <Switch
+                    id="private-mode"
+                    checked={privateMode}
                     onCheckedChange={togglePrivateMode}
                     aria-label="Toggle privacy mode"
                     className="scale-75"
@@ -162,7 +187,7 @@ export default function ChatInterface() {
                 <p>Hide sensitive content from nearby viewers</p>
               </TooltipContent>
             </Tooltip>
-            
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Clear chat history">
@@ -182,7 +207,7 @@ export default function ChatInterface() {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            
+
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Help">
@@ -279,9 +304,9 @@ export default function ChatInterface() {
                 <span className="hidden sm:inline">Private & Confidential</span>
               </div>
             </div>
-            <Button 
-              onClick={handleSendMessage} 
-              disabled={inputValue.trim() === "" || isLoading} 
+            <Button
+              onClick={handleSendMessage}
+              disabled={inputValue.trim() === "" || isLoading}
               className="bg-primary hover:bg-primary/90 h-10 w-10 p-0"
               aria-label="Send message"
             >
