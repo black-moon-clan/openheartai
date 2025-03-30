@@ -46,9 +46,9 @@ export const handler: Handler = async (event) => {
           content: message,
         },
       ],
-      model: "mixtral-8x7b-32768",
-      temperature: 0.5,
-      max_tokens: 1024,
+      model: "gemma2-9b-it",
+      temperature: 0,
+      max_completion_tokens: 1450,
       top_p: 1,
       stream: false,
     });
@@ -68,10 +68,7 @@ export const handler: Handler = async (event) => {
     console.error("Error:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({
-        error: "Internal Server Error",
-        details: error instanceof Error ? error.message : "Unknown error",
-      }),
+      body: JSON.stringify({ error: "Internal Server Error" }),
     };
   }
 };

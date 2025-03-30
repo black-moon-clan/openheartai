@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send, User, Bot, Shield, Trash2, HelpCircle } from "lucide-react";
+import { Send, User, Bot, Shield, Trash2, HelpCircle, Info } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardFooter, CardHeader } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -34,6 +34,7 @@ export default function ChatInterface() {
   ]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [privateMode, setPrivateMode] = useState(true);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -139,6 +140,16 @@ export default function ChatInterface() {
     });
   };
 
+  const togglePrivateMode = () => {
+    setPrivateMode(!privateMode);
+    toast({
+      title: privateMode ? "Privacy mode disabled" : "Privacy mode enabled",
+      description: privateMode
+        ? "Your conversation is no longer hidden from nearby viewers"
+        : "Your conversation is now hidden from nearby viewers",
+    });
+  };
+
   return (
     <TooltipProvider>
       <Card className="flex flex-col h-[600px] max-h-[80vh] bg-background border rounded-lg shadow-sm mx-auto max-w-4xl">
@@ -158,6 +169,24 @@ export default function ChatInterface() {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center gap-1">
+                  <Switch
+                    id="private-mode"
+                    checked={privateMode}
+                    onCheckedChange={togglePrivateMode}
+                    aria-label="Toggle privacy mode"
+                    className="scale-75"
+                  />
+                  <Label htmlFor="private-mode" className="text-xs cursor-pointer">Privacy</Label>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Hide sensitive content from nearby viewers</p>
+              </TooltipContent>
+            </Tooltip>
+
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-8 w-8" aria-label="Clear chat history">
@@ -208,7 +237,7 @@ export default function ChatInterface() {
                     </Avatar>
                   )}
                   <div
-                    className={`message-bubble ${message.sender === "user" ? "user-message" : "bot-message"}`}
+                    className={`message-bubble ${message.sender === "user" ? "user-message" : "bot-message"} ${privateMode && message.sender === "user" ? "blur-sm hover:blur-none focus:blur-none" : ""}`}
                     tabIndex={0}
                     aria-label={`${message.sender === "user" ? "Your message" : "Bot message"}: ${message.content}`}
                   >
@@ -253,33 +282,56 @@ export default function ChatInterface() {
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="flex items-end gap-2">
+                  <Avatar className="h-7 w-7 hidden sm:flex">
+                    <AvatarFallback>
+                      <Bot className="h-3 w-3" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="bot-message" aria-live="polite" aria-label="Bot is typing">
+                    <div className="flex space-x-2 items-center h-5">
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse delay-150"></div>
+                      <div className="w-1.5 h-1.5 rounded-full bg-white/60 animate-pulse delay-300"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </ScrollArea>
 
         {/* Input Area */}
         <CardFooter className="p-3 border-t">
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSendMessage();
-            }}
-            className="flex w-full gap-2"
-          >
-            <Input
-              ref={inputRef}
-              type="text"
-              placeholder="Type your message..."
-              value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
-              onKeyDown={handleKeyDown}
-              disabled={isLoading}
-              className="flex-1"
-            />
-            <Button type="submit" size="icon" disabled={isLoading || !inputValue.trim()}>
+          <div className="flex w-full gap-2 items-center">
+            <div className="relative flex-1">
+              <Input
+                ref={inputRef}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Ask me anything about sexual health..."
+                className="pr-10 py-2 min-h-10"
+                disabled={isLoading}
+                aria-label="Type your message"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none text-xs text-muted-foreground">
+                <Info className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Private & Confidential</span>
+              </div>
+            </div>
+            <Button
+              onClick={handleSendMessage}
+              disabled={inputValue.trim() === "" || isLoading}
+              className="bg-primary hover:bg-primary/90 h-10 w-10 p-0"
+              aria-label="Send message"
+            >
               <Send className="h-4 w-4" />
-              <span className="sr-only">Send message</span>
+              <span className="sr-only">Send</span>
             </Button>
-          </form>
+          </div>
         </CardFooter>
       </Card>
     </TooltipProvider>

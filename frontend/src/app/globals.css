@@ -2,32 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar styles */
-::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-::-webkit-scrollbar-track {
-  @apply bg-[#0f172a];
-}
-
-::-webkit-scrollbar-thumb {
-  @apply bg-blue-600 bg-opacity-80 rounded-full;
-  border: 2px solid transparent;
-  background-clip: padding-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  @apply bg-blue-500 bg-opacity-100;
-}
-
-/* Firefox scrollbar styles */
-* {
-  scrollbar-width: thin;
-  scrollbar-color: #2563eb #0f172a;
-}
-
 @layer base {
   :root {
     --background: 0 0% 100%;
@@ -99,6 +73,33 @@
   body {
     @apply bg-background text-foreground;
   }
+}
+
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-muted;
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #ff4b7f;
+  border-radius: 5px;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #ff3366;
+}
+
+/* Firefox scrollbar styles */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #ff4b7f var(--muted);
 }
 
 /* Custom styles for the chat application */
