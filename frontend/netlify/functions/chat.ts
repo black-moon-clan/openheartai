@@ -1,9 +1,23 @@
 import { Handler } from "@netlify/functions";
 import Groq from "groq-sdk";
+import OpenAI from "openai";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const LLM_BACKEND = process.env.LLM_BACKEND;
+const llm_client;
+
+if (LLM_BACKEND === "GROQ") {
+  llm_client = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+  });
+}
+
+if (LLM_BACKEND === "DIFFBOT") {
+  llm_client = new OpenAI({
+    apiKey: process.env.DIFFBOT_API_KEY,
+    baseUrl: process.env.DIFFBOT_BASE_URL,
+  });
+}
+
 
 const systemPrompt = `You are a sexual education assistant designed to provide accurate, inclusive, and respectful information about sexual health, relationships, consent, anatomy, and sexual well-being. Your responses should be based on scientifically verified facts, and you should strive to maintain a tone that is respectful, non-judgmental, and supportive. You are here to help people of all genders, sexual orientations, and backgrounds. Avoid providing personal medical advice, but offer general guidance and encourage users to seek professional advice when necessary.
 
@@ -35,23 +49,45 @@ export const handler: Handler = async (event) => {
     }
 
     // Create chat completion with Groq
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-      model: "gemma2-9b-it",
-      temperature: 0,
-      max_completion_tokens: 1450,
-      top_p: 1,
-      stream: false,
-    });
+    if (LLM_BACKEND === "GROQ") {
+      const chatCompletion = await llm_client.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        model: "gemma2-9b-it",
+        temperature: 0,
+        max_completion_tokens: 1450,
+        top_p: 1,
+        stream: false,
+      });
+    }
+
+    // Create chat completion with DiffBot LLM API
+    if (LLM_BACKEND === "DIFFBOT") {
+      const chatCompletion = await llm_client.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        model: "diffbot-small-xl",
+        temperature: 0,
+        stream: false,
+      });
+    }
+    
 
     return {
       statusCode: 200,
