@@ -1,9 +1,22 @@
 import { Handler } from "@netlify/functions";
 import Groq from "groq-sdk";
+import OpenAI from "openai";
 
-const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+let LLM_BACKEND = process.env.LLM_BACKEND;
+var llm_client;
+
+if (LLM_BACKEND === "GROQ") {
+  llm_client = new Groq({
+    apiKey: process.env.GROQ_API_KEY,
+  });
+}
+
+if (LLM_BACKEND === "DIFFBOT") {
+  llm_client = new OpenAI({
+    apiKey: process.env.DIFFBOT_API_KEY,
+    baseUrl: process.env.DIFFBOT_BASE_URL,
+  });
+}
 
 const systemPrompt = `You are a sexual education assistant designed to provide accurate, inclusive, and respectful information about sexual health, relationships, consent, anatomy, and sexual well-being. Your responses should be based on scientifically verified facts, and you should strive to maintain a tone that is respectful, non-judgmental, and supportive. You are here to help people of all genders, sexual orientations, and backgrounds. Avoid providing personal medical advice, but offer general guidance and encourage users to seek professional advice when necessary.
 
