@@ -48,23 +48,44 @@ export const handler: Handler = async (event) => {
     }
 
     // Create chat completion with Groq
-    const chatCompletion = await groq.chat.completions.create({
-      messages: [
-        {
-          role: "system",
-          content: systemPrompt,
-        },
-        {
-          role: "user",
-          content: message,
-        },
-      ],
-      model: "gemma2-9b-it",
-      temperature: 0,
-      max_completion_tokens: 1450,
-      top_p: 1,
-      stream: false,
-    });
+    if (LLM_BACKEND === "GROQ") {
+      const chatCompletion = await llm_client.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        model: "gemma2-9b-it",
+        temperature: 0,
+        max_completion_tokens: 1450,
+        top_p: 1,
+        stream: false,
+      });
+    }
+
+    // Create chat completion with DiffBot LLM API
+    if (LLM_BACKEND === "DIFFBOT") {
+      const chatCompletion = await llm_client.chat.completions.create({
+        messages: [
+          {
+            role: "system",
+            content: systemPrompt,
+          },
+          {
+            role: "user",
+            content: message,
+          },
+        ],
+        model: "diffbot-small-xl",
+        temperature: 0,
+        stream: false,
+      });
+    }
 
     return {
       statusCode: 200,
