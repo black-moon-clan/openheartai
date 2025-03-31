@@ -1,47 +1,30 @@
 import { Handler } from "@netlify/functions";
-import { Groq } from "groq-sdk";
-import OpenAI from "openai";
+import Groq from "groq-sdk";
 
-// Initialize the LLM client based on the environment variable
-let llm_client: Groq | OpenAI;
+const groq = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
+});
 
-if (process.env.LLM_BACKEND === "groq") {
-  llm_client = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-  });
-} else if (process.env.LLM_BACKEND === "openai") {
-  llm_client = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,
-  });
-} else {
-  // Default to Groq if no backend is specified
-  llm_client = new Groq({
-    apiKey: process.env.GROQ_API_KEY,
-  });
-}
+const systemPrompt = `You are a sexual education assistant designed to provide accurate, inclusive, and respectful information about sexual health, relationships, consent, anatomy, and sexual well-being. Your responses should be based on scientifically verified facts, and you should strive to maintain a tone that is respectful, non-judgmental, and supportive. You are here to help people of all genders, sexual orientations, and backgrounds. Avoid providing personal medical advice, but offer general guidance and encourage users to seek professional advice when necessary.
 
-const systemPrompt = `You are a knowledgeable and compassionate sexual health educator. Your role is to:
-1. Provide accurate, science-based information about sexual health, relationships, and related topics
-2. Maintain a professional and respectful tone
-3. Be inclusive and non-judgmental
-4. Focus on education and health
-5. Respect privacy and confidentiality
-6. Handle sensitive topics appropriately
-7. Provide factual, evidence-based responses
-8. Direct users to professional healthcare when appropriate
-
-If you don't know something or aren't sure, say so and recommend consulting a healthcare provider.
-Never provide medical diagnoses or treatment recommendations.`;
+Your main goal is to:
+1. Provide clear and accurate information about topics related to sexual education.
+2. Respond in a respectful and empathetic manner.
+3. Encourage healthy attitudes toward relationships, consent, and body autonomy.
+4. Maintain a neutral stance on personal choices and orientations.
+5. Direct users to appropriate resources or professionals when needed.`;
 
 export const handler: Handler = async (event) => {
+  // Only allow POST requests
   if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
-      body: JSON.stringify({ error: "Method not allowed" }),
+      body: "Method Not Allowed",
     };
   }
 
   try {
+    // Parse the incoming request body
     const { message } = JSON.parse(event.body || "{}");
 
     if (!message) {
@@ -51,68 +34,41 @@ export const handler: Handler = async (event) => {
       };
     }
 
-    let response;
-
-    if (process.env.LLM_BACKEND === "groq") {
-      const completion = await (llm_client as Groq).chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message },
-        ],
-        model: "mixtral-8x7b-32768",
-        temperature: 0.7,
-        max_tokens: 2048,
-        top_p: 1,
-        stream: false,
-      });
-
-      response =
-        completion.choices[0]?.message?.content ||
-        "I apologize, but I couldn't generate a response. Please try again.";
-    } else if (process.env.LLM_BACKEND === "openai") {
-      const completion = await (llm_client as OpenAI).chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message },
-        ],
-        model: "gpt-4-turbo-preview",
-        temperature: 0.7,
-        max_tokens: 2048,
-        top_p: 1,
-        stream: false,
-      });
-
-      response =
-        completion.choices[0]?.message?.content ||
-        "I apologize, but I couldn't generate a response. Please try again.";
-    } else {
-      // Default to Groq
-      const completion = await (llm_client as Groq).chat.completions.create({
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: message },
-        ],
-        model: "mixtral-8x7b-32768",
-        temperature: 0.7,
-        max_tokens: 2048,
-        top_p: 1,
-        stream: false,
-      });
-
-      response =
-        completion.choices[0]?.message?.content ||
-        "I apologize, but I couldn't generate a response. Please try again.";
-    }
+    // Create chat completion with Groq
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+      model: "gemma2-9b-it",
+      temperature: 0,
+      max_completion_tokens: 1450,
+      top_p: 1,
+      stream: false,
+    });
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ response }),
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        response:
+          chatCompletion.choices[0]?.message?.content ||
+          "No response generated",
+      }),
     };
   } catch (error) {
     console.error("Error:", error);
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Internal server error" }),
+      body: JSON.stringify({ error: "Internal Server Error" }),
     };
   }
 };
