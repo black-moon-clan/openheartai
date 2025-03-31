@@ -80,57 +80,39 @@
 }
 
 /* Custom Scrollbar Styles */
+[data-radix-scroll-area-viewport] {
+  scrollbar-width: thin !important;
+  scrollbar-color: hsl(var(--primary) / 0.7) hsl(var(--secondary)) !important;
+}
+
+[data-radix-scroll-area-viewport]::-webkit-scrollbar {
+  width: 8px !important;
+  height: 8px !important;
+}
+
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-track {
+  background: hsl(var(--secondary)) !important;
+  border-radius: 4px !important;
+}
+
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.7) !important;
+  border-radius: 4px !important;
+  transition: background-color 0.2s ease !important;
+}
+
+[data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary)) !important;
+}
+
+/* Hide default scrollbar */
 ::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+  display: none;
 }
 
-::-webkit-scrollbar-track {
-  background: hsl(var(--secondary));
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary) / 0.7);
-  border-radius: 5px;
-  transition: background-color 0.2s ease;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary));
-}
-
-/* Firefox */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--primary) / 0.7) hsl(var(--secondary));
-}
-
-/* Custom scrollbar for ScrollArea */
-.custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
-}
-
-.custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar-track {
-  background: hsl(var(--secondary));
-  border-radius: 4px;
-}
-
-.custom-scrollbar [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary) / 0.7);
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
-}
-
-.custom-scrollbar
-  [data-radix-scroll-area-viewport]::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary));
-}
-
-.custom-scrollbar [data-radix-scroll-area-viewport] {
-  scrollbar-width: thin;
-  scrollbar-color: hsl(var(--primary) / 0.7) hsl(var(--secondary));
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Custom styles for the chat application */

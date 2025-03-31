@@ -192,8 +192,8 @@ export default function ChatInterface() {
         </CardHeader>
 
         {/* Chat Area */}
-        <ScrollArea className="flex-1 p-4 custom-scrollbar" ref={scrollAreaRef}>
-          <div className="flex flex-col space-y-4">
+        <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
+          <div className="flex flex-col space-y-4 pr-4">
             {messages.map((message) => (
               <div
                 key={message.id}
