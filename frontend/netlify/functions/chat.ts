@@ -18,7 +18,6 @@ if (LLM_BACKEND === "DIFFBOT") {
   });
 }
 
-
 const systemPrompt = `You are a sexual education assistant designed to provide accurate, inclusive, and respectful information about sexual health, relationships, consent, anatomy, and sexual well-being. Your responses should be based on scientifically verified facts, and you should strive to maintain a tone that is respectful, non-judgmental, and supportive. You are here to help people of all genders, sexual orientations, and backgrounds. Avoid providing personal medical advice, but offer general guidance and encourage users to seek professional advice when necessary.
 
 Your main goal is to:
@@ -49,45 +48,23 @@ export const handler: Handler = async (event) => {
     }
 
     // Create chat completion with Groq
-    if (LLM_BACKEND === "GROQ") {
-      const chatCompletion = await llm_client.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt,
-          },
-          {
-            role: "user",
-            content: message,
-          },
-        ],
-        model: "gemma2-9b-it",
-        temperature: 0,
-        max_completion_tokens: 1450,
-        top_p: 1,
-        stream: false,
-      });
-    }
-
-    // Create chat completion with DiffBot LLM API
-    if (LLM_BACKEND === "DIFFBOT") {
-      const chatCompletion = await llm_client.chat.completions.create({
-        messages: [
-          {
-            role: "system",
-            content: systemPrompt,
-          },
-          {
-            role: "user",
-            content: message,
-          },
-        ],
-        model: "diffbot-small-xl",
-        temperature: 0,
-        stream: false,
-      });
-    }
-    
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: systemPrompt,
+        },
+        {
+          role: "user",
+          content: message,
+        },
+      ],
+      model: "gemma2-9b-it",
+      temperature: 0,
+      max_completion_tokens: 1450,
+      top_p: 1,
+      stream: false,
+    });
 
     return {
       statusCode: 200,
