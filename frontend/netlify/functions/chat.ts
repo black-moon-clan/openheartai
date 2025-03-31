@@ -2,8 +2,8 @@ import { Handler } from "@netlify/functions";
 import Groq from "groq-sdk";
 import OpenAI from "openai";
 
-const LLM_BACKEND = process.env.LLM_BACKEND;
-const llm_client;
+let LLM_BACKEND = process.env.LLM_BACKEND;
+var llm_client;
 
 if (LLM_BACKEND === "GROQ") {
   llm_client = new Groq({
